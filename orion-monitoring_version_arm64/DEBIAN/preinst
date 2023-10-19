@@ -1,0 +1,30 @@
+#!/bin/bash
+
+SERVICE=orion-monitoring.service
+mkdir -p /usr/share/metropolis
+echo "Installing Orion device Monitoring tool"
+
+is_file_exists() {
+  if [[ -f "$1" ]]; then
+    echo "$1 exists."
+  else
+    echo "$1 does not exists."
+    exit 1
+  fi
+}
+
+is_file_exists /home/aim/.aws/credentials
+is_file_exists /home/aim/.aws/config
+is_file_exists /usr/share/metropolis/configuration/global.yaml
+
+IS_ACTIVE=$(systemctl is-active ${SERVICE}) || true
+
+if [ "${IS_ACTIVE}" == 'active' ]
+then
+  echo "orion-monitoring service is active stopping older version"
+  systemctl stop ${SERVICE}
+  systemctl disable ${SERVICE}
+  systemctl daemon-reload
+else
+  echo "No active orion-monitoring found. Installing fresh orion-monitoring"
+fi

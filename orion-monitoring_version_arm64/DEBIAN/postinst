@@ -1,0 +1,44 @@
+#!/bin/bash
+
+SERVICE=orion-monitoring.service
+EXE_FILE=/usr/share/metropolis/orion-monitoring
+
+is_file_exists() {
+  if [[ -f "$1" ]]; then
+    echo "$1 exists."
+  else
+    echo "$1 does not exists."
+    exit 1
+  fi
+}
+
+is_file_exists /etc/systemd/system/${SERVICE}
+is_file_exists ${EXE_FILE}
+
+chmod +x ${EXE_FILE}
+
+MACHINE_ARCH=$(uname -p)
+IS_RESTART_REQUIRED="NO"
+
+if [[ "${MACHINE_ARCH}" == "aarch64" ]]
+then
+  OLD_HOSTNAME=$(cat /etc/hostname)
+  NEW_HOSTNAME=$(sudo cat /proc/device-tree/serial-number | grep -a [0-9])
+  if [ ${OLD_HOSTNAME} -ne ${NEW_HOSTNAME} ]; then
+    echo "Changing hostname from ${OLD_HOSTNAME} to ${NEW_HOSTNAME}"
+    sudo sed -i -e "s/${OLD_HOSTNAME}/${NEW_HOSTNAME}/" /etc/hostname
+    IS_RESTART_REQUIRED="YES"
+  fi
+fi
+
+systemctl enable ${SERVICE}
+systemctl daemon-reload
+systemctl start ${SERVICE}
+
+echo "Orion device monitoring installation is completed."
+
+if [ "${IS_RESTART_REQUIRED}" == "YES" ]; then
+  echo "Reboot system after 5 secs..."
+  sleep 5
+  reboot
+fi

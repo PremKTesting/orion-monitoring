@@ -1,0 +1,7 @@
+Package: orion-monitoring
+Version: <version>
+Checksums-Sha1:
+    <sha1sum> <filesize> orion-monitoring
+Architecture: <architecture>
+Maintainer: Metropolis
+Description: Proprietary Metropolis device monitoring tool for AIMobile

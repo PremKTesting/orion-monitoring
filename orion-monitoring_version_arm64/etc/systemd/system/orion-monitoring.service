@@ -1,0 +1,15 @@
+[Unit]
+Description=Orion device monitoring system service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=aim
+Group=sudo
+Restart=always
+RestartSec=10
+ExecStart=/usr/share/metropolis/orion-monitoring /usr/share/metropolis/configuration/global.yaml 60 15
+
+[Install]
+WantedBy=multi-user.target
